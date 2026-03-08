@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Guard AI | Pro Max</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="settings-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>⚙️ System Settings</h3>
+            <input type="text" id="parent-num" placeholder="Parent Mobile (with +91)">
+            <input type="text" id="keyword-input" placeholder="Trigger Word (e.g. Help)">
+            <div class="slider-container">
+                <label>Shake Sensitivity</label>
+                <input type="range" id="sensitivity-range" min="20" max="60" value="35">
+            </div>
+            <button onclick="saveSettings()" class="btn-police">Update System</button>
+            <button onclick="toggleSettings()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="logs-panel" class="modal" style="display:none;">
+        <div class="modal-content log-content">
+            <h3>📜 Emergency History</h3>
+            <div id="log-list">Loading history...</div>
+            <button onclick="toggleLogs()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="fake-call-screen" class="fake-call-overlay" style="display:none;">
+        <div class="caller-info">
+            <div class="caller-avatar"><i data-lucide="user" size="80"></i></div>
+            <h2>Dad Calling...</h2>
+            <p>Mobile +91 98XXX XXXXX</p>
+        </div>
+        <div class="call-actions">
+            <button class="decline" onclick="hideFakeCall()"><i data-lucide="phone-off"></i></button>
+            <button class="accept" onclick="hideFakeCall()"><i data-lucide="phone"></i></button>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <div class="status-header">
+            <span class="dot"></span> LIVE PROTECTION
+            <div class="header-icons">
+                <i data-lucide="history" onclick="toggleLogs()" class="icon-btn"></i>
+                <i data-lucide="settings" onclick="toggleSettings()" class="icon-btn"></i>
+            </div>
+        </div>
+        
+        <h1>Safety Guard AI</h1>
+        <p class="subtitle">Voice & Motion Monitoring Active</p>
+
+        <div class="sos-container">
+            <button id="sos-btn" onclick="startEmergencySequence('Manual Button')">SOS</button>
+            <div class="pulse-ring"></div>
+        </div>
+
+        <div id="cancel-zone" style="display:none;">
+            <p class="timer-text">Sending SMS in <span id="timer">5</span>s...</p>
+            <button onclick="cancelAlert()" class="btn-secondary">❌ Cancel Alert</button>
+        </div>
+
+        <div class="extra-actions">
+            <button onclick="triggerFakeCall()" class="btn-fake-call">📞 Fake Call Mode</button>
+        </div>
+
+        <div class="authority-grid">
+            <div class="auth-box" id="auth-family"><i data-lucide="users"></i><br>Family</div>
+            <div class="auth-box" id="auth-police"><i data-lucide="shield"></i><br>Police</div>
+            <div class="auth-box" id="auth-women"><i data-lucide="heart-handshake"></i><br>1091</div>
+        </div>
+
+        <div id="status-log">All Systems Operational</div>
+    </div>
+
+    <video id="webcam" autoplay playsinline style="display:none;"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
