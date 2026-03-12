@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Guard AI | Pro Max</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="settings-modal" class="modal" style="display:none;">
+        <div class="modal-content settings-scroll">
+            <h3>⚙️ System Settings</h3>
+            
+            <div class="settings-section">
+                <h4>🔐 Silent Mode</h4>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="silent-mode">
+                    <span class="toggle-slider"></span>
+                </label>
+                <p class="hint">No sound/vibration during alerts</p>
+            </div>
+
+            <div class="settings-section">
+                <h4>📍 Live Tracking</h4>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="live-tracking">
+                    <span class="toggle-slider"></span>
+                </label>
+                <p class="hint">Continuous location updates</p>
+                <input type="number" id="tracking-interval" placeholder="Update interval (seconds)" value="30">
+            </div>
+
+            <div class="settings-section">
+                <h4>🛡️ Geofencing</h4>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="geofencing">
+                    <span class="toggle-slider"></span>
+                </label>
+                <p class="hint">Alert when leaving safe zones</p>
+                <button onclick="manageSafeZones()" class="btn-secondary">Manage Safe Zones</button>
+            </div>
+
+            <div class="settings-section">
+                <h4>⏰ Check-In Timer</h4>
+                <input type="number" id="checkin-interval" placeholder="Minutes between check-ins" value="60">
+                <button onclick="startCheckIn()" class="btn-police">Enable Check-In</button>
+            </div>
+
+            <div class="settings-section">
+                <h4>🔋 Battery Alert</h4>
+                <input type="number" id="battery-threshold" placeholder="Alert at % battery" value="20">
+            </div>
+
+            <div class="settings-section">
+                <h4>📞 Quick Dial</h4>
+                <input type="text" id="quick-dial-number" placeholder="Number (e.g. 100)" value="100">
+                <p class="hint">Used by the “Quick Dial” button</p>
+            </div>
+
+            <div class="settings-section">
+                <h4>🎤 Voice Trigger</h4>
+                <input type="text" id="keyword-input" placeholder="Trigger Word (e.g. Help)">
+            </div>
+
+            <div class="settings-section">
+                <h4>📱 Shake Sensitivity</h4>
+                <input type="range" id="sensitivity-range" min="20" max="60" value="35">
+                <span id="sensitivity-value">35</span>
+            </div>
+
+            <button onclick="saveSettings()" class="btn-police">💾 Save All Settings</button>
+            <button onclick="toggleSettings()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="contacts-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>👥 Emergency Contacts</h3>
+            <div id="contacts-list"></div>
+            <div class="add-contact-form">
+                <input type="text" id="contact-name" placeholder="Name">
+                <input type="text" id="contact-number" placeholder="+91XXXXXXXXXX">
+                <input type="number" id="contact-priority" placeholder="Priority (1=highest)" value="1">
+                <button onclick="addContact()" class="btn-police">➕ Add Contact</button>
+            </div>
+            <button onclick="toggleContacts()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="safezone-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>🛡️ Safe Zones</h3>
+            <div id="safezone-list"></div>
+            <div class="add-zone-form">
+                <input type="text" id="zone-name" placeholder="Zone Name (e.g. Home)">
+                <button onclick="addCurrentLocationAsZone()" class="btn-police">📍 Use Current Location</button>
+                <input type="number" id="zone-radius" placeholder="Radius (meters)" value="500">
+            </div>
+            <button onclick="toggleSafeZones()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="threat-selector" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>⚠️ Select Threat Level</h3>
+            <button onclick="triggerWithThreat('high')" class="threat-btn high">🚨 HIGH - Immediate Danger</button>
+            <button onclick="triggerWithThreat('medium')" class="threat-btn medium">⚠️ MEDIUM - Suspicious Activity</button>
+            <button onclick="triggerWithThreat('low')" class="threat-btn low">ℹ️ LOW - Precautionary</button>
+            <button onclick="toggleThreatSelector()" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+
+    <div id="logs-panel" class="modal" style="display:none;">
+        <div class="modal-content log-content">
+            <h3>📜 Emergency History</h3>
+            <div id="log-list">Loading history...</div>
+            <button onclick="toggleLogs()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="location-panel" class="modal" style="display:none;">
+        <div class="modal-content log-content">
+            <h3>📍 Location History</h3>
+            <div id="location-list">Loading location history...</div>
+            <button onclick="toggleLocationHistory()" class="btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <div id="fake-call-screen" class="fake-call-overlay" style="display:none;">
+        <div class="caller-info">
+            <div class="caller-avatar"><i data-lucide="user" size="80"></i></div>
+            <h2>Dad Calling...</h2>
+            <p>Mobile +91 98XXX XXXXX</p>
+        </div>
+        <div class="call-actions">
+            <button class="decline" onclick="hideFakeCall()"><i data-lucide="phone-off"></i></button>
+            <button class="accept" onclick="hideFakeCall()"><i data-lucide="phone"></i></button>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <div class="status-header">
+            <span class="dot"></span> <span id="status-text">LIVE PROTECTION</span>
+            <div class="header-icons">
+                <i data-lucide="users" onclick="toggleContacts()" class="icon-btn" title="Contacts"></i>
+                <i data-lucide="map-pin" onclick="viewLocationHistory()" class="icon-btn" title="Location History"></i>
+                <i data-lucide="history" onclick="toggleLogs()" class="icon-btn" title="Alert History"></i>
+                <i data-lucide="settings" onclick="toggleSettings()" class="icon-btn" title="Settings"></i>
+            </div>
+        </div>
+        
+        <h1>Safety Guard AI</h1>
+        <p class="subtitle">Voice & Motion Monitoring Active</p>
+
+        <div class="sos-container">
+            <button id="sos-btn" onclick="toggleThreatSelector()">SOS</button>
+            <div class="pulse-ring"></div>
+            <div id="battery-indicator">🔋 <span id="battery-level">100</span>%</div>
+        </div>
+
+        <div id="cancel-zone" style="display:none;">
+            <p class="timer-text">Sending SMS in <span id="timer">5</span>s...</p>
+            <button onclick="cancelAlert()" class="btn-secondary">❌ Cancel Alert</button>
+        </div>
+
+        <div class="extra-actions">
+            <button onclick="triggerFakeCall()" class="btn-fake-call">📞 Fake Call</button>
+            <button onclick="startVideoRecording()" class="btn-video" id="video-btn">🎥 Record Video</button>
+            <button onclick="quickDial()" class="btn-dial">📞 Quick Dial</button>
+        </div>
+
+        <div class="authority-grid">
+            <div class="auth-box" id="auth-family"><i data-lucide="users"></i><br><span id="contact-count">1</span> Contacts</div>
+            <div class="auth-box" id="auth-police" onclick="window.open('tel:100')"><i data-lucide="shield"></i><br>Police 100</div>
+            <div class="auth-box" id="auth-women" onclick="window.open('tel:1091')"><i data-lucide="heart-handshake"></i><br>Women 1091</div>
+            <div class="auth-box" id="auth-ambulance" onclick="window.open('tel:108')"><i data-lucide="ambulance"></i><br>Ambulance</div>
+            <div class="auth-box" id="auth-tracking"><i data-lucide="navigation"></i><br><span id="tracking-status">Tracking Off</span></div>
+            <div class="auth-box" id="auth-silent"><i data-lucide="volume-x"></i><br><span id="silent-status">Normal</span></div>
+        </div>
+
+        <div id="status-log">All Systems Operational</div>
+    </div>
+
+    <video id="webcam" autoplay playsinline style="display:none;"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

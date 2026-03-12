@@ -1,0 +1,1 @@
+{"trigger_keyword": "help", "shake_sensitivity": 35, "silent_mode": false, "live_tracking": true, "tracking_interval": 30, "check_in_enabled": false, "check_in_interval": 60, "last_check_in": null, "geofencing_enabled": false, "battery_alert_threshold": 20, "quick_dial_number": "100"}
